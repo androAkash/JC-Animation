@@ -1,16 +1,17 @@
 package com.example.jc_animation.Chapter1
 
-import android.widget.GridLayout
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Ease
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -36,7 +37,7 @@ import androidx.compose.ui.unit.dp
 /**Stage 1: Learn the low-level tools
  * Goal: Animate a box moving across the screen.*/
 @Composable
-fun MovingBox(containerWidth: Dp = 400.dp) {
+fun MovingBoxHorizontally(containerWidth: Dp = 400.dp) {
     //1> state that controls whether box is on right or on left
     var moved by remember { mutableStateOf(false) }
     //2)target offset in dp depending on `moved`
@@ -59,7 +60,9 @@ fun MovingBox(containerWidth: Dp = 400.dp) {
     )
 
     Column(
-        modifier = Modifier.padding(16.dp).width(containerWidth),
+        modifier = Modifier
+            .padding(16.dp)
+            .width(containerWidth),
         horizontalAlignment = Alignment.Start
     ) {
         //Track
@@ -88,8 +91,38 @@ fun MovingBox(containerWidth: Dp = 400.dp) {
     }
 }
 
+/***/
+@Composable
+fun MovingBoxVertically(containerHeight:Dp = 400.dp) {
+    var moved by remember { mutableStateOf(false) }
+    val targetOffsetDp = if (moved) containerHeight - 150.dp else 0.dp
+    val density = LocalDensity.current
+    val targetOffsetPX = with(density){ targetOffsetDp.toPx() }
+    val animateOffsetPx by animateDpAsState(targetValue = targetOffsetDp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+    )
+
+    Column (modifier = Modifier.size(containerHeight),
+        horizontalAlignment = Alignment.CenterHorizontally){
+        Box (){
+            Box(modifier = Modifier
+                .offset {
+                    IntOffset(x = 0, y = animateOffsetPx.roundToPx())
+                }
+                .background(Color.Red)
+                .size(84.dp)
+                .align(Alignment.TopCenter))
+        }
+        Spacer(Modifier.weight(1f))
+        Button(onClick = {moved = !moved}) {
+            Text(if (moved) "Up" else "Down")
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MovingBoxPreview() {
-    MovingBox(containerWidth = 320.dp)
+//    MovingBoxHorizontally(containerWidth = 320.dp)
+    MovingBoxVertically(containerHeight = 500.dp)
 }
