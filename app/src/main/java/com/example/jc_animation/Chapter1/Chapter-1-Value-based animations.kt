@@ -1,17 +1,17 @@
 package com.example.jc_animation.Chapter1
 
-import androidx.compose.animation.core.Ease
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -119,10 +119,49 @@ fun MovingBoxVertically(containerHeight:Dp = 400.dp) {
         }
     }
 }
+/**Move the box and change the box color*/
+@Composable
+fun ColorChangingAnimatedBox(containerHeight: Dp = 400.dp) {
+    var moved by remember { mutableStateOf(false) }
+    val targetOffsetDp = if (moved) containerHeight - 150.dp else 0.dp
+    val animatedOffsetDp by animateDpAsState(
+        targetValue = targetOffsetDp, animationSpec = spring(
+            Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessVeryLow
+        )
+    )
+    val animateColor by animateColorAsState(
+        targetValue = if (moved) Color.Green else Color.Red,
+        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+    )
+
+    Column(
+        modifier = Modifier
+            .padding(60.dp)
+            .fillMaxWidth()
+            .height(containerHeight),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box {
+            Box(modifier = Modifier
+                .offset {
+                    IntOffset(x = 0, y = animatedOffsetDp.roundToPx())
+                }
+                .background(color = animateColor)
+                .size(80.dp))
+        }
+        Spacer(Modifier.weight(1f))
+        Button(onClick = {
+            moved = !moved
+        }) {
+            Text(if (moved) "Up" else "Down")
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 private fun MovingBoxPreview() {
 //    MovingBoxHorizontally(containerWidth = 320.dp)
-    MovingBoxVertically(containerHeight = 500.dp)
+//    MovingBoxVertically(containerHeight = 500.dp)
+    ColorChangingAnimatedBox(containerHeight = 500.dp)
 }
