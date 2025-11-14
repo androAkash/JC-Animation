@@ -54,9 +54,7 @@ fun RaceOfEasing(modifier: Modifier = Modifier) {
         0f, 1f,
         animationSpec = infiniteRepeatable(
             tween(
-                1500, easing = CubicBezierEasing(
-                    1f, 0f, 0.2f, 0.2f
-                )
+                1500, easing = CubicBezierEasing(0f, 0f, 0.2f, 1f) //slow finish
             ),
             repeatMode = RepeatMode.Reverse
         )
